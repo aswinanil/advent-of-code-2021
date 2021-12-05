@@ -1,49 +1,14 @@
 package main
 
 import (
-    "os"
     "fmt"
-    "bufio"
-    "strconv"
 )
 
-// var inputFile = "input/sample_day_1.txt"
-var inputFile = "input/input_day_1.txt"
-
-func parseFile() []string {
-    lines := make([]string, 0)
-
-    file, err := os.Open(inputFile)
-    if err != nil {
-        fmt.Println(err)
-        return lines
-    }
-    defer file.Close()
-
-    scanner := bufio.NewScanner(file)
-    scanner.Split(bufio.ScanLines)
-
-    for scanner.Scan() {
-        lines = append(lines, scanner.Text())
-    }
-
-    return lines
-}
-
-func checkIncrements(lines []string) int {
-
+func checkIncrements(lines []int) int {
     prevValue := -1
     incrementCount := 0
 
     for _, val := range lines {
-        val, err := strconv.Atoi(val)
-
-        if err != nil {
-            // handle error
-            fmt.Println(err)
-            os.Exit(2)
-        }
-
         if prevValue != -1 && val > prevValue {
             incrementCount += 1
         }
@@ -54,7 +19,35 @@ func checkIncrements(lines []string) int {
     return incrementCount
 }
 
+func getIntListFromStringList(lines []string) []int {
+    intList := make([]int, 0)
+
+    for _, val := range lines {
+        intVal := GetInt(val)
+        intList = append(intList, intVal)
+    }
+
+    return intList
+}
+
+func getThreeNumWindow(lines []int) []int {
+    windowSums := make([]int, 0)
+
+    for i := 0; i < len(lines) - 2; i++ {
+        windowSums = append(windowSums, lines[i] + lines[i+1] + lines[i+2])
+    }
+
+    return windowSums
+}
+
 func main() {
-    lines := parseFile()
-    fmt.Println(checkIncrements(lines))
+    lines := ParseFile(1, false)
+    intList := getIntListFromStringList(lines)
+
+    // Part 1
+    fmt.Println(checkIncrements(intList))
+
+    // Part 2
+    windowSums := (getThreeNumWindow(intList))
+    fmt.Println(checkIncrements(windowSums))
 }
