@@ -64,3 +64,20 @@ func GetInt(str string) int {
 
     return val
 }
+
+func GetIntFromBinary(str string) int {
+    val, err := strconv.ParseInt(str, 2, 64)
+
+    if err != nil {
+        // handle error
+        fmt.Println(err)
+        os.Exit(2)
+    }
+
+    return int(val)
+}
+
+func GetCharAt(str string, i int) string {
+    rn := []rune(str)
+    return string(rn[i])
+}
