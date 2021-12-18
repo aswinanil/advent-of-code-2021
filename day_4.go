@@ -79,23 +79,40 @@ func markBoard(draw int, board [][]int) bool {
     return false
 }
 
-func markBoards(draws []int, allBoards[][][]int) (int, int) {
-    for _, draw := range draws {
+func isLastWinner(winningIndex int, drawSequence int, winnersList []int) bool {
+    if drawSequence == 0 {
+        return false
+    }
+
+    if drawSequence == len(winnersList) - 1 {  // Last draw
+        return true
+    }
+
+    winnersList[winningIndex] = drawSequence
+
+    for _, val := range winnersList {
+        if val == 0 {
+            return false
+        }
+    }
+
+    return true
+}
+
+func markBoards(draws []int, allBoards [][][]int, isGetLast bool) (int, int) {
+    winnersList := make([]int, len(allBoards))
+
+    for i, draw := range draws {
         for j, board := range allBoards {
-            if markBoard(draw, board) {
+            isWinner := markBoard(draw, board)
+
+            if (isWinner && (!isGetLast || isLastWinner(j, i, winnersList))) {
                 return j, draw
             }
         }
     }
 
     return -1, -1
-}
-
-func printBoard(board [][]int) {
-    for _, row := range board {
-        fmt.Println(row)
-    }
-    fmt.Println("")
 }
 
 func getScore(board [][]int, lastDraw int) int {
@@ -115,10 +132,17 @@ func getScore(board [][]int, lastDraw int) int {
 func main() {
     lines := ParseFile(4, false)
     draws, allBoards := parseBoard(lines)
+
     boardLength = len(allBoards[0][0])
     boardHeight = len(allBoards[0])
 
     // Part 1
-    winningIndex, lastDraw := markBoards(draws, allBoards)
+    allBoardsCopy := make([][][]int, len(allBoards))
+    copy(allBoardsCopy, allBoards)
+    winningIndex, lastDraw := markBoards(draws, allBoardsCopy, false)
+    fmt.Println(getScore(allBoardsCopy[winningIndex], lastDraw))
+
+    // Part 2
+    winningIndex, lastDraw = markBoards(draws, allBoards, true)
     fmt.Println(getScore(allBoards[winningIndex], lastDraw))
 }

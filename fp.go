@@ -53,6 +53,23 @@ func ParseFileAndSplit(day int, isSample bool) [][]string {
     return splitLines
 }
 
+func SplitIntoInt(str string, char string) []int {
+    var splitInt []int
+    var splitStr []string
+
+    if char == " " {
+        splitStr = strings.Fields(str)
+    } else {
+        splitStr = strings.Split(str, char)
+    }
+
+    for _, term := range splitStr {
+        splitInt = append(splitInt, GetInt(term))
+    }
+
+    return splitInt
+}
+
 func GetInt(str string) int {
     val, err := strconv.Atoi(str)
 
@@ -80,4 +97,11 @@ func GetIntFromBinary(str string) int {
 func GetCharAt(str string, i int) string {
     rn := []rune(str)
     return string(rn[i])
+}
+
+func PrintIntArr(arr [][]int) {
+    for _, row := range arr {
+        fmt.Println(row)
+    }
+    fmt.Println("")
 }
