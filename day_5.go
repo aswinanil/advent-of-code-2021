@@ -5,12 +5,43 @@ import (
     "strings"
 )
 
-func markGrid(line []int, grid [][]int) {
+func isDiagonal(line []int) bool {
+    x1, y1, x2, y2 := line[0], line[1], line[2], line[3]
+    return x1 != x2 && y1 != y2
+}
+
+func markGridDiagonally(line []int, grid [][]int) {
     x1, y1, x2, y2 := line[0], line[1], line[2], line[3]
 
-    if (x1 != x2 && y1 != y2) {
-        return
+    xMin, xMax := GetMinMax(x1, x2)
+    yOfXMin, yOfXMax := -1, -1
+
+    if (xMin == x1) {
+        yOfXMin = y1
+        yOfXMax = y2
+    } else {
+        yOfXMin = y2
+        yOfXMax = y1
     }
+
+    y := yOfXMin
+    isIncY := yOfXMin < yOfXMax
+
+    for x:= xMin; x <= xMax; x++ {
+        grid[y][x]++
+
+        if (isIncY) {
+            y++
+        } else {
+            y--
+        }
+    }
+
+    return
+}
+
+func markGrid(line []int, grid [][]int) {
+    x1, y1, x2, y2 := line[0], line[1], line[2], line[3]
 
     // Mark horizontally
     xMin, xMax := GetMinMax(x1, x2)
@@ -31,9 +62,13 @@ func markGrid(line []int, grid [][]int) {
     }
 }
 
-func fillGrid(lines [][]int, grid [][]int) {
+func fillGrid(lines [][]int, grid [][]int, checkDiagonal bool) {
     for _, line := range lines {
-        markGrid(line, grid)
+        if (!checkDiagonal || !isDiagonal(line)) {
+            markGrid(line, grid)
+        } else {
+            markGridDiagonally(line, grid)
+        }
     }
 }
 
@@ -90,11 +125,13 @@ func main() {
     lines := ParseFile(5, false)
     linesInInt := ParseLines(lines)
 
+    // Part 1
     grid := createGrid(linesInInt)
-    // PrintIntArr(grid)
-
-    fillGrid(linesInInt, grid)
-    // PrintIntArr(grid)
-
+    fillGrid(linesInInt, grid, false)
     fmt.Println(getScore(grid))
+
+    // Part 2
+    gridWithDiag := createGrid(linesInInt)
+    fillGrid(linesInInt, gridWithDiag, true)
+    fmt.Println(getScore(gridWithDiag))
 }
