@@ -105,3 +105,17 @@ func PrintIntArr(arr [][]int) {
     }
     fmt.Println("")
 }
+
+func GetMinMax(num1 int, num2 int) (int, int) {
+    min, max := -1, -1
+
+    if (num1 > num2) {
+        min = num2
+        max = num1
+    } else if (num1 < num2) {
+        min = num1
+        max = num2
+    }
+
+    return min, max
+}
