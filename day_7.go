@@ -2,29 +2,45 @@ package main
 
 import (
     "fmt"
+    "sync"
 )
 
-func getFuel(positions []int, i int, fuelChan chan int) {
+func getExpensiveFuelCost(targetX int, x int) int {
+    diff := Abs(x - targetX)
+    fuel := diff
+
+    for i:=1; i<diff; i++ {
+        fuel += i
+    }
+
+    return fuel
+}
+
+func getFuel(positions []int, targetX int, isExpensive bool, fuelChan chan int) {
     fuel := 0
-    targetX := positions[i]
 
     for _, x := range positions {
-        fuel += Abs(x - targetX)
+        if (isExpensive) {
+            fuel += getExpensiveFuelCost(targetX, x)
+        } else {
+            fuel += Abs(x - targetX)
+        }
     }
 
     fuelChan <- fuel
 }
 
-func getMinFuel(positions []int) int {
-    fuelChan := make(chan int, len(positions))
+func getMinFuel(positions []int, isExpensive bool, wg *sync.WaitGroup, part int) {
+    max := GetMax(positions)
+    fuelChan := make(chan int, max)
 
-    for i, _ := range positions {
-        go getFuel(positions, i, fuelChan)
+    for i:=0; i<max; i++ {
+        go getFuel(positions, i, isExpensive, fuelChan)
     }
 
     minFuel := <- fuelChan
 
-    for i:=0; i < len(positions) - 1; i++ {
+    for i:=0; i < max - 1; i++ {
         fuelCost := <- fuelChan
 
         if fuelCost < minFuel {
@@ -32,13 +48,19 @@ func getMinFuel(positions []int) int {
         }
     }
 
-    return minFuel
+    fmt.Printf("Part %d: %d\n", part, minFuel)
+    defer wg.Done()
 }
 
 func main() {
     lines := ParseFile(7, false)
     positions := SplitIntoInt(lines[0], ",")
 
-    // Part 1
-    fmt.Println(getMinFuel(positions))
+    var wg sync.WaitGroup
+    wg.Add(2)
+
+    go getMinFuel(positions, false, &wg, 1)  // Part 1
+    go getMinFuel(positions, true, &wg, 2)  // Part 2
+
+    wg.Wait()
 }

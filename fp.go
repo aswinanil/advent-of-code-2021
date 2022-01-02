@@ -132,6 +132,18 @@ func GetMin(arr []int) int {
     return min
 }
 
+func GetMax(arr []int) int {
+    max := arr[0]
+
+    for _, val := range arr {
+        if max < val {
+            max = val
+        }
+    }
+
+    return max
+}
+
 func Abs(num int) int {
     if (num < 0) {
         return -num
