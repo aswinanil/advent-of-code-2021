@@ -119,3 +119,22 @@ func GetMinMax(num1 int, num2 int) (int, int) {
 
     return min, max
 }
+
+func GetMin(arr []int) int {
+    min := arr[0]
+
+    for _, val := range arr {
+        if min > val {
+            min = val
+        }
+    }
+
+    return min
+}
+
+func Abs(num int) int {
+    if (num < 0) {
+        return -num
+    }
+    return num
+}
