@@ -82,6 +82,19 @@ func GetInt(str string) int {
     return val
 }
 
+func GetSring(i int) string {
+    // val, err := strconv.Itoa(i)
+    return strconv.Itoa(i)
+
+    // if err != nil {
+    //     // handle error
+    //     fmt.Println(err)
+    //     os.Exit(2)
+    // }
+
+    // return val
+}
+
 func GetIntFromBinary(str string) int {
     val, err := strconv.ParseInt(str, 2, 64)
 
@@ -149,4 +162,20 @@ func Abs(num int) int {
         return -num
     }
     return num
+}
+
+func In(char rune, str string) bool {
+    for _, char2 := range str {
+        // fmt.Println(char, char2)
+
+        if char == char2 {
+            return true
+        }
+    }
+
+    return false
+}
+
+func RemoveStringAtIndex(s []string, index int) []string {
+    return append(s[:index], s[index+1:]...)
 }
