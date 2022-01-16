@@ -185,3 +185,7 @@ func Use(vals ...interface{}) {
         _ = val
     }
 }
+
+func GetLastChar(str string) string {
+    return string(str[len(str) - 1])
+}
