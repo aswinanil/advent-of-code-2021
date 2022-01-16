@@ -3,6 +3,7 @@ package main
 import (
     "os"
     "fmt"
+    "sort"
     "bufio"
     "strings"
     "strconv"
@@ -74,7 +75,7 @@ func GetInt(str string) int {
     val, err := strconv.Atoi(str)
 
     if err != nil {
-        // handle error
+        // Handle error
         fmt.Println(err)
         os.Exit(2)
     }
@@ -83,23 +84,14 @@ func GetInt(str string) int {
 }
 
 func GetSring(i int) string {
-    // val, err := strconv.Itoa(i)
     return strconv.Itoa(i)
-
-    // if err != nil {
-    //     // handle error
-    //     fmt.Println(err)
-    //     os.Exit(2)
-    // }
-
-    // return val
 }
 
 func GetIntFromBinary(str string) int {
     val, err := strconv.ParseInt(str, 2, 64)
 
     if err != nil {
-        // handle error
+        // Handle error
         fmt.Println(err)
         os.Exit(2)
     }
@@ -166,13 +158,24 @@ func Abs(num int) int {
 
 func In(char rune, str string) bool {
     for _, char2 := range str {
-        // fmt.Println(char, char2)
-
         if char == char2 {
             return true
         }
     }
 
+    return false
+}
+
+func IntIn(i int, arr []int) bool {
+    sort.Ints(arr)
+
+    for _, ele := range arr {
+        if ele > i {
+            return false
+        } else if i == ele {
+            return true
+        }
+    }
     return false
 }
 
