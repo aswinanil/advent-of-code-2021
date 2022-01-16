@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "sync"
+    "sort"
 )
 
 type coordinates struct {
@@ -59,7 +60,7 @@ func getLowPoints(heightMap [][]int, i int, rowsWg *sync.WaitGroup, lowPointsCha
     defer rowsWg.Done()
 }
 
-func getRiskLevelsSum(heightMap [][]int, wg *sync.WaitGroup, part int) {
+func getAllLowPoints(heightMap [][]int) []coordinates {
     lowPointsChan := make(chan coordinates, len(heightMap) * len(heightMap[0]))
 
     var rowsWg sync.WaitGroup
@@ -73,12 +74,85 @@ func getRiskLevelsSum(heightMap [][]int, wg *sync.WaitGroup, part int) {
     close(lowPointsChan)
 
     sum := 0
+    var lowPoints []coordinates
+
     for point := range lowPointsChan {
+        lowPoints = append(lowPoints, point)
         sum += heightMap[point.y][point.x] + 1
     }
 
-    fmt.Printf("Part %d: %d\n", part, sum)
-    defer wg.Done()
+    fmt.Printf("Part %d: %d\n", 1, sum)
+    return lowPoints
+}
+
+func getAdjacentSlopes(heightMap [][]int, point coordinates) []coordinates {
+    pointHeight := heightMap[point.y][point.x]
+    var adjacentSlopes []coordinates
+    possibleSlopes := getValidAdjacentPoints(point.x, point.y, heightMap)
+
+    for _, slope := range possibleSlopes {
+        newHeight := heightMap[slope.y][slope.x]
+
+        if newHeight == 9 {
+            continue
+        }
+
+        if newHeight <= pointHeight {
+            continue
+        }
+
+        adjacentSlopes = append(adjacentSlopes, slope)
+    }
+
+    return adjacentSlopes
+}
+
+func getBasin(heightMap [][]int, lowPoint coordinates, basinsChan chan []coordinates) {
+    var newSlopes []coordinates
+    processedSlopes := make(map[coordinates]bool)
+    newSlopes = append(newSlopes, lowPoint)
+
+    for len(newSlopes) > 0 {
+        var newSlope coordinates
+        newSlope, newSlopes = newSlopes[0], newSlopes[1:]
+        adjacentSlopes := getAdjacentSlopes(heightMap, newSlope)
+
+        var newAdjacentSlopes []coordinates
+        for _, adjacentSlope := range adjacentSlopes {
+            if processedSlopes[adjacentSlope] {
+                continue
+            }
+            newAdjacentSlopes = append(newAdjacentSlopes, adjacentSlope)
+        }
+
+        newSlopes = append(newSlopes, newAdjacentSlopes...)
+        processedSlopes[newSlope] = true
+    }
+
+    basin := make([]coordinates, len(processedSlopes))
+
+    i := 0
+    for key := range processedSlopes {
+        basin[i] = key
+        i++
+    }
+
+    basinsChan <- basin
+}
+
+func getAllBasins(heightMap [][]int, lowPoints []coordinates) [][]coordinates {
+    basinsChan := make(chan []coordinates, len(lowPoints))
+
+    for _, point := range lowPoints {
+        go getBasin(heightMap, point, basinsChan)
+    }
+
+    var basins [][]coordinates
+    for i:=0; i<len(lowPoints); i++ {
+        basins = append(basins, <- basinsChan)
+    }
+
+    return basins
 }
 
 func getHeightMap(lines []string) ([][]int) {
@@ -97,15 +171,29 @@ func getHeightMap(lines []string) ([][]int) {
     return heightMap
 }
 
+func printLargestBasinsSizeProduct(basins [][]coordinates) {
+    var sizes []int
+
+    for _, basin := range basins {
+        sizes = append(sizes, len(basin))
+    }
+    sort.Ints(sizes)
+
+    product := 1
+    for i:=len(sizes)-1; i>len(sizes)-4; i-- {
+        product *= sizes[i]
+    }
+    fmt.Printf("Part %d: %d\n", 2, product)
+}
+
 func main() {
     lines := ParseFile(9, false)
-
     heightMap := getHeightMap(lines)
 
-    var wg sync.WaitGroup
-    wg.Add(1)
+    // Part 1
+    lowPoints := getAllLowPoints(heightMap)
 
-    go getRiskLevelsSum(heightMap, &wg, 1)
-
-    wg.Wait()
+    // Part 2
+    basins := getAllBasins(heightMap, lowPoints)
+    printLargestBasinsSizeProduct(basins)
 }

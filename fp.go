@@ -179,3 +179,9 @@ func In(char rune, str string) bool {
 func RemoveStringAtIndex(s []string, index int) []string {
     return append(s[:index], s[index+1:]...)
 }
+
+func Use(vals ...interface{}) {
+    for _, val := range vals {
+        _ = val
+    }
+}
