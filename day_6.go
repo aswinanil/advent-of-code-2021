@@ -4,64 +4,52 @@ import (
     "fmt"
 )
 
-func getMinOrZero(arr []int) int {
-    min := arr[0]
+func passOneDay(histogram map[int]int) map[int]int {
+    newHistogram := make(map[int]int)
 
-    for _, val := range arr {
-        if val == 0 {
-            return 0
-        }
-
-        if min > val {
-            min = val
-        }
+    for i:=8; i>0; i-- {
+        newHistogram[i-1] = histogram[i]
     }
 
-    return min
+    newHistogram[8] = histogram[0]
+    newHistogram[6] += histogram[0]
+
+    return newHistogram
 }
 
-func passOneDay(fishes []int) ([]int, int) {
-    newFishes := make([]int, 0)
-
-    min := getMinOrZero(fishes)
-
-    if (min != 0) {
-        for i, _ := range fishes {
-            fishes[i] -= min
-        }
-
-        return fishes, min
+func passXDays(histogram map[int]int, days int) map[int]int {
+    for i:=0; i<days; i++ {
+        histogram = passOneDay(histogram)
     }
-
-
-    for i, _ := range fishes {
-        if fishes[i] == 0 {
-            fishes[i] = 6
-            newFishes = append(newFishes, 8)
-        } else {
-            fishes[i]--
-        }
-    }
-
-    return append(fishes, newFishes...), 1
+    return histogram
 }
 
-func passXDays(fishes []int, days int) []int {
-    i := 0
-    var daysPassed int
+func getHistogram(timers []int) map[int]int {
+    timerCountMap := make(map[int]int)
 
-    for i < days {
-        fishes, daysPassed = passOneDay(fishes)
-        i += daysPassed
+    for _, timer := range timers {
+        timerCountMap[timer]++
     }
+    return timerCountMap
+}
 
-    return fishes
+func getTotalCount(histogram map[int]int) int {
+    totalCount := 0
+
+    for _, count := range histogram {
+        totalCount += count
+    }
+    return totalCount
 }
 
 func main() {
-    lines := ParseFile(6, true)
-    fishes := SplitIntoInt(lines[0], ",")
+    lines := ParseFile(6, false)
+    timers := SplitIntoInt(lines[0], ",")
+    histogram := getHistogram(timers)
 
-    fishes = passXDays(fishes, 80)  // Part 1
-    fmt.Println(len(fishes))
+    histogram = passXDays(histogram, 80)  // Part 1
+    fmt.Println(getTotalCount(histogram))
+
+    histogram = passXDays(histogram, 256-80)  // Part 2
+    fmt.Println(getTotalCount(histogram))
 }
